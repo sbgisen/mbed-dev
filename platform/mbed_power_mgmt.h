@@ -64,34 +64,7 @@ extern "C" {
  * }
  * @endcode
  */
-#ifdef MBED_SLEEP_TRACING_ENABLED
 
-void sleep_tracker_lock(const char *const filename, int line);
-void sleep_tracker_unlock(const char *const filename, int line);
-
-#define sleep_manager_lock_deep_sleep()              \
-    do                                               \
-    {                                                \
-        sleep_manager_lock_deep_sleep_internal();    \
-        sleep_tracker_lock(MBED_FILENAME, __LINE__); \
-    } while (0);
-
-#define sleep_manager_unlock_deep_sleep()              \
-    do                                                 \
-    {                                                  \
-        sleep_manager_unlock_deep_sleep_internal();    \
-        sleep_tracker_unlock(MBED_FILENAME, __LINE__); \
-    } while (0);
-
-#else
-
-#define sleep_manager_lock_deep_sleep() \
-    sleep_manager_lock_deep_sleep_internal()
-
-#define sleep_manager_unlock_deep_sleep() \
-    sleep_manager_unlock_deep_sleep_internal()
-
-#endif // MBED_SLEEP_TRACING_ENABLED
 
 /** Lock the deep sleep mode
  *
@@ -132,6 +105,9 @@ bool sleep_manager_can_deep_sleep(void);
  * to be active for debug modes.
  *
  */
+void sleep_manager_lock_deep_sleep(void);
+void sleep_manager_unlock_deep_sleep(void);
+ 
 void sleep_manager_sleep_auto(void);
 
 /** Send the microcontroller to sleep
@@ -167,6 +143,34 @@ static inline void sleep(void)
 #endif /* !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)) */
 }
 
+
+#ifdef MBED_SLEEP_TRACING_ENABLED
+
+void sleep_tracker_lock(const char *const filename, int line);
+void sleep_tracker_unlock(const char *const filename, int line);
+
+#define sleep_manager_lock_deep_sleep()              \
+    do                                               \
+    {                                                \
+        sleep_manager_lock_deep_sleep_internal();    \
+        sleep_tracker_lock(MBED_FILENAME, __LINE__); \
+    } while (0);
+
+#define sleep_manager_unlock_deep_sleep()              \
+    do                                                 \
+    {                                                  \
+        sleep_manager_unlock_deep_sleep_internal();    \
+        sleep_tracker_unlock(MBED_FILENAME, __LINE__); \
+    } while (0);
+
+#else
+
+void sleep_manager_lock_deep_sleep(void);
+void sleep_manager_unlock_deep_sleep(void);
+
+#endif // MBED_SLEEP_TRACING_ENABLED
+		
+		
 /** Send the microcontroller to deep sleep
  *
  * @deprecated
